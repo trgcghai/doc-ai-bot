@@ -5,7 +5,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from scraper import fetch_articles, save_article
-from upload_store import _get_client
+from upload_store import _get_client, upload_files
 
 load_dotenv()
 
@@ -66,14 +66,8 @@ def main() -> int:
 
     if added or updated:
         client = _get_client()
-        for slug in added + updated:
-            filepath = DATA_DIR / f"{slug}.md"
-            print(f"  Uploading: {filepath.name}")
-            with open(filepath, "rb") as f:
-                uploaded = client.files.create(file=f, purpose="assistants")
-            client.vector_stores.files.create(
-                vector_store_id=VECTOR_STORE_ID, file_id=uploaded.id
-            )
+        delta_paths = [DATA_DIR / f"{slug}.md" for slug in added + updated]
+        upload_files(delta_paths, VECTOR_STORE_ID, client)
     else:
         print("  No files to upload")
 

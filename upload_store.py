@@ -41,6 +41,25 @@ def _get_or_create_vector_store(client: OpenAI) -> str:
     return store.id
 
 
+def upload_files(file_paths: list[Path], store_id: str, client: OpenAI) -> int:
+    total_bytes = 0
+    for i, filepath in enumerate(file_paths, 1):
+        logger.info("Uploading %d/%d: %s", i, len(file_paths), filepath.name)
+        with open(filepath, "rb") as f:
+            uploaded = client.files.create(file=f, purpose="assistants")
+        client.vector_stores.files.create(
+            vector_store_id=store_id, file_id=uploaded.id
+        )
+        total_bytes += filepath.stat().st_size
+
+    vs = client.vector_stores.retrieve(store_id)
+    logger.info("Uploaded %d files, %d chunks embedded", len(file_paths), vs.file_counts.total)
+    logger.info("Store: %s (%s)", vs.name, vs.id)
+    if total_bytes:
+        logger.info("Total size: %s bytes", total_bytes)
+    return len(file_paths)
+
+
 def upload_to_store(store_id: str | None = None) -> str:
     client = _get_client()
     if store_id is None:
@@ -51,20 +70,7 @@ def upload_to_store(store_id: str | None = None) -> str:
         logger.warning("No .md files found in %s", DATA_DIR)
         return store_id
 
-    total_bytes = 0
-    for i, filepath in enumerate(md_files, 1):
-        logger.info("Uploading %d/%d: %s", i, len(md_files), filepath.name)
-        with open(filepath, "rb") as f:
-            uploaded = client.files.create(file=f, purpose="assistants")
-        client.vector_stores.files.create(
-            vector_store_id=store_id, file_id=uploaded.id
-        )
-        total_bytes += filepath.stat().st_size
-
-    vs = client.vector_stores.retrieve(store_id)
-    logger.info("Uploaded %d files, %d chunks embedded", len(md_files), vs.file_counts.total)
-    logger.info("Store: %s (%s)", vs.name, vs.id)
-    logger.info("Total size: %s bytes", total_bytes)
+    upload_files(md_files, store_id, client)
     return store_id
 
 
