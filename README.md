@@ -54,6 +54,8 @@ The `railway.toml` cron triggers `main.py` on schedule. Each run prints delta co
 
 ## Screenshot
 
+Assistant answering "How do I add a YouTube video?
+
 ![Assistant answering "How do I add a YouTube video?"](screenshot.png)
 
 The assistant correctly cites article URLs in its response.
