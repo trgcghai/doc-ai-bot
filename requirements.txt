@@ -1,0 +1,5 @@
+requests>=2.31.0
+html2text>=2024.2.25
+python-dotenv>=1.0.0
+openai>=1.0.0
+pytest>=8.0.0
