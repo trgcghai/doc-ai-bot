@@ -1,6 +1,6 @@
 # OptiBot Mini-Clone
 
-Ingests OptiSigns support articles, uploads them to an OpenAI vector store, and runs daily to keep them fresh.
+Ingests OptiSigns support articles, uploads them to an OpenAI vector store, and runs every 2 hours to keep them fresh.
 
 ## Setup
 
@@ -44,9 +44,13 @@ docker run --env-file .env optibot
 
 OpenAI's default (`max_chunk_size_tokens=800`) is used for each file. One markdown file per article keeps context clean.
 
-## Daily Job Logs
+## Deployment
 
-*Not yet deployed* — set `MIN_ARTICLE_COUNT` in Railway/DigitalOcean with a cron schedule and monitor via platform logs. Add the env variables from `.env.sample` as secrets in the dashboard.
+**Platform:** Railway  
+**Schedule:** `0 */2 * * *` (every 2 hours)  
+**Cron Logs:** https://railway.com/project/.../cron  
+
+The `railway.toml` cron triggers `main.py` on schedule. Each run prints delta counts (added / updated / skipped) and uploads only changed files to the OpenAI vector store. Container exits with code 0 on success; failures appear in deployment logs.
 
 ## Screenshot
 
