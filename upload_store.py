@@ -62,10 +62,8 @@ def upload_to_store(store_id: str | None = None) -> str:
         total_bytes += filepath.stat().st_size
 
     vs = client.vector_stores.retrieve(store_id)
-    logger.info("Upload complete: %d file(s) to store %s", len(md_files), store_id)
-    logger.info("Store: %s", vs.id)
-    logger.info("Name: %s", vs.name)
-    logger.info("File count: %s", vs.file_counts.total)
+    logger.info("Uploaded %d files, %d chunks embedded", len(md_files), vs.file_counts.total)
+    logger.info("Store: %s (%s)", vs.name, vs.id)
     logger.info("Total size: %s bytes", total_bytes)
     return store_id
 
